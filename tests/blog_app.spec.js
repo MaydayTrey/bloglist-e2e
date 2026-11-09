@@ -28,4 +28,23 @@ describe('Blog app', () => {
 
     await expect(page.getByText('Failed to login!')).toBeVisible()
   })
+
+  test("Can successfully create a blog once logged in", async ({ page }) => {
+    await loginWith(page, 'user', 'password')
+    const createNewBlogButton = page.getByRole('button', { name: 'Create a new blog'})
+    await createNewBlogButton.click()
+
+    const authorField = page.getByLabel('Author')
+    const titleField = page.getByLabel('Title')
+    const urlField = page.getByLabel('URL')
+    
+    await authorField.fill('Author')
+    await titleField.fill('Title')
+    await urlField.fill('URL')
+
+    const createBlog = page.getByRole('button', { name: 'Create blog' })
+    await createBlog.click()
+
+    await expect(page.getByText('Title Author')).toBeVisible()
+  })
 })
