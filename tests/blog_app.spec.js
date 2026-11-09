@@ -18,13 +18,15 @@ describe('Blog app', () => {
     await expect(loginButton).toBeVisible()
   })
 
-  test('Login functionality tested', async ({ page }) => {
-    //We need to do two things here; 
-    // We need to try to login with a known existing user within the test DB
-    // Really it is like we need to first create a user which we will know...
-    // Then we need to find the login fields, fill them with known password/username, and see if we succeed
+  test('Login successfully with proper credentials', async ({ page }) => {
+    await loginWith(page, 'user', 'password')
 
-    //Secondly, we need to try and login with information we know is false, and ensure we failed to login
+    await expect(page.getByText('Hello, Test User!')).toBeVisible()
+  })
 
+  test('Fails login with improper credentials', async ({ page }) => {
+    await loginWith(page, 'user', 'wrong')
+
+    await expect(page.getByText('Failed to login!')).toBeVisible()
   })
 })
