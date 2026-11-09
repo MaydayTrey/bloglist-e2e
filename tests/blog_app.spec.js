@@ -1,5 +1,5 @@
 const { test, expect, describe, beforeEach } = require('@playwright/test')
-const { wipeDB, loginWith, createUser} = require('./helper')
+const { wipeDB, loginWith, createUser, createBlog} = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -31,20 +31,20 @@ describe('Blog app', () => {
 
   test("Can successfully create a blog once logged in", async ({ page }) => {
     await loginWith(page, 'user', 'password')
-    const createNewBlogButton = page.getByRole('button', { name: 'Create a new blog'})
-    await createNewBlogButton.click()
-
-    const authorField = page.getByLabel('Author')
-    const titleField = page.getByLabel('Title')
-    const urlField = page.getByLabel('URL')
-    
-    await authorField.fill('Author')
-    await titleField.fill('Title')
-    await urlField.fill('URL')
-
-    const createBlog = page.getByRole('button', { name: 'Create blog' })
-    await createBlog.click()
-
+    await createBlog(page, 'Author', 'Title', 'url')
     await expect(page.getByText('Title Author')).toBeVisible()
+  })
+
+  test("The like button functionality works for an existing blog", async ({ page }) => {
+    await loginWith(page, 'user', 'password')
+    await createBlog(page, 'Author', 'Title', 'url')
+
+    const viewButton = page.getByRole('button', { name: 'view' })
+    await viewButton.click()
+
+    const likeButton = page.getByRole('button', { name: 'like' })
+    await likeButton.click()
+
+    await expect(page.getByText('Likes: 1')).toBeVisible()
   })
 })

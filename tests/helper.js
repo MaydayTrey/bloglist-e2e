@@ -17,5 +17,20 @@ const loginWith = async(page, username, password) => {
 
 }
 
+const createBlog = async(page, author, title, url) => {
+    const createNewBlogButton = page.getByRole('button', { name: 'Create a new blog'})
+    await createNewBlogButton.click()
 
-export { loginWith, wipeDB, createUser }
+    const authorField = page.getByLabel('Author')
+    const titleField = page.getByLabel('Title')
+    const urlField = page.getByLabel('URL')
+    
+    await authorField.fill('Author')
+    await titleField.fill('Title')
+    await urlField.fill('URL')
+
+    const createBlog = page.getByRole('button', { name: 'Create blog' })
+    await createBlog.click()
+}
+
+export { loginWith, wipeDB, createUser, createBlog }
