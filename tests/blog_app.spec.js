@@ -20,7 +20,6 @@ describe('Blog app', () => {
 
   test('Login successfully with proper credentials', async ({ page }) => {
     await loginWith(page, 'user', 'password')
-
     await expect(page.getByText('Hello, Test User!')).toBeVisible()
   })
 

@@ -4,10 +4,10 @@ const wipeDB = async(request) => {
     await request.post('http://localhost:3001/api/testing/reset')
 }
 
-const createUser = async(request, name, username, password) => {
-    await request.post('http://localhost:3001/api/users'), {
-        data: {name, username, password}
-    }
+const createUser = async (request, name, username, password) => {
+  await request.post('http://localhost:3001/api/users', {
+    data: { name, username, password }
+  })
 }
 
 const loginWith = async(page, username, password) => {
