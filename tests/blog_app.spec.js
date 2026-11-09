@@ -5,6 +5,7 @@ describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     await wipeDB(request)
     await createUser(request, 'Test User', 'user', 'password')
+    await createUser(request, 'Second User', 'secondUser', 'password')
     await page.goto('http://localhost:5173')
   })
 
@@ -60,4 +61,47 @@ describe('Blog app', () => {
     await removeButton.click()
     await expect(page.getByText('Title Author')).not.toBeVisible()
   })
+  
+  test("Only the user which created the blog has the option to remove the blog", async ({ page }) => {
+    await loginWith(page, 'user', 'password')
+    await createBlog(page, 'Author', 'Title', 'url')
+    const logoutButton = page.getByRole('button', { name: 'Test User, click here to Logout.' })
+    await logoutButton.click()
+    await page.goto('http://localhost:5173')
+
+    await loginWith(page, 'secondUser', 'password')
+
+    const viewButton = page.getByRole('button', { name: 'view' })
+    await viewButton.click()
+
+    await expect(page.getByRole('button', { name: 'remove' })).toHaveCount(0)
+  })
+
+  test('Blogs are ordered by likes, most liked first', async ({ page }) => {
+  await loginWith(page, 'user', 'password')
+
+  await createBlog(page, 'Author One', 'Least liked', 'url1')
+  await createBlog(page, 'Author Two', 'Most liked', 'url2')
+  await createBlog(page, 'Author Three', 'Middle liked', 'url3')
+
+  // Like "Most liked" twice
+  const mostLiked = page.locator('.blog').filter({ hasText: 'Most liked' })
+  await mostLiked.getByRole('button', { name: 'view' }).click()
+  await mostLiked.getByRole('button', { name: 'like' }).click()
+  await expect(mostLiked.getByText('Likes: 1')).toBeVisible()
+  await mostLiked.getByRole('button', { name: 'like' }).click()
+  await expect(mostLiked.getByText('Likes: 2')).toBeVisible()
+
+  // Like "Middle liked" once
+  const middleLiked = page.locator('.blog').filter({ hasText: 'Middle liked' })
+  await middleLiked.getByRole('button', { name: 'view' }).click()
+  await middleLiked.getByRole('button', { name: 'like' }).click()
+  await expect(middleLiked.getByText('Likes: 1')).toBeVisible()
+
+  // "Least liked" stays at 0
+  const blogs = page.locator('.blog')
+  await expect(blogs.nth(0)).toContainText('Most liked')
+  await expect(blogs.nth(1)).toContainText('Middle liked')
+  await expect(blogs.nth(2)).toContainText('Least liked')
+})
 })

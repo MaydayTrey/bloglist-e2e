@@ -1,4 +1,5 @@
 //Serves helper functions
+import { expect } from '@playwright/test'
 
 const wipeDB = async(request) => {
     await request.post('http://localhost:3001/api/testing/reset')
@@ -25,12 +26,13 @@ const createBlog = async(page, author, title, url) => {
     const titleField = page.getByLabel('Title')
     const urlField = page.getByLabel('URL')
     
-    await authorField.fill('Author')
-    await titleField.fill('Title')
-    await urlField.fill('URL')
+    await authorField.fill(author)
+    await titleField.fill(title)
+    await urlField.fill(url)
 
     const createBlog = page.getByRole('button', { name: 'Create blog' })
     await createBlog.click()
+    await expect(page.getByText(`${title} ${author}`)).toBeVisible()
 }
 
 export { loginWith, wipeDB, createUser, createBlog }
